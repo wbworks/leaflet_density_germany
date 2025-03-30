@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaflet Population Grid</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.6.2/proj4.js"></script>
+    <style>
+        #map { height: 600px; width: 100%; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        //const map = L.map('map').setView([51.1657, 10.4515], 6); // Deutschland als Startpunkt
+        const map = L.map('map').setView([53.8584618, 10.653416], 10); // Stadt als Startpunkt
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        const input_data = 
+        [{ lat: 53.858461850958946, lng: 10.653416438406209, density: 9018, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3417000E4364000_plausibel" },
+{ lat: 53.86736543633658, lng: 10.668753684024649, density: 8226, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3418000E4365000_plausibel" },
+{ lat: 53.867108052581436, lng: 10.714347831316308, density: 8064, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3418000E4368000_plausibel" },
+{ lat: 53.858295958454434, lng: 10.683806238570094, density: 7147, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3417000E4366000_plausibel" },
+{ lat: 53.8672815271746, lng: 10.683951790243224, density: 6930, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3418000E4366000_plausibel" },
+{ lat: 53.849556340346034, lng: 10.638085676575603, density: 6565, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3416000E4363000_plausibel" },
+{ lat: 53.85837984719638, lng: 10.668611366187388, density: 5851, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3417000E4365000_plausibel" },
+{ lat: 53.86744746006044, lng: 10.653555522364073, density: 5362, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3418000E4364000_plausibel" },
+{ lat: 53.840324818518795, lng: 10.683515360567805, density: 5268, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3415000E4366000_plausibel" },
+{ lat: 53.849310388921324, lng: 10.683660762030437, density: 5154, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3416000E4366000_plausibel" },
+{ lat: 53.85812252607752, lng: 10.714195812105984, density: 4556, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3417000E4368000_plausibel" },
+{ lat: 53.903307786005385, lng: 10.669323691124438, density: 4503, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3422000E4365000_plausibel" },
+{ lat: 53.84947624106598, lng: 10.653277426243816, density: 4486, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3416000E4364000_plausibel" },
+{ lat: 53.83133924719043, lng: 10.683370034125806, density: 4073, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3414000E4366000_plausibel" },
+{ lat: 53.88549885342564, lng: 10.638629217183126, density: 4050, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3420000E4363000_plausibel" },
+{ lat: 53.86719573258573, lng: 10.69914983976027, density: 3857, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3418000E4367000_plausibel" },
+{ lat: 53.85821018474432, lng: 10.699001054295794, density: 3827, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3417000E4367000_plausibel" },
+{ lat: 53.840239086532954, lng: 10.698703713716348, density: 3802, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3415000E4367000_plausibel" },
+{ lat: 53.876351024731115, lng: 10.668896075381651, density: 3742, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3419000E4365000_plausibel" },
+{ lat: 53.83166325570693, lng: 10.622628984003521, density: 3496, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3414000E4362000_plausibel" },
+{ lat: 53.88533661243646, lng: 10.6690385403137, density: 3422, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3420000E4365000_plausibel" },
+{ lat: 53.84064890583723, lng: 10.622761394858315, density: 3398, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3415000E4362000_plausibel" },
+{ lat: 53.894404283180464, lng: 10.653973205550697, density: 3321, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3421000E4364000_plausibel" },
+{ lat: 53.885252662401854, lng: 10.684243119215965, density: 3207, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3420000E4366000_plausibel" },
+{ lat: 53.91146931208386, lng: 10.80639292590187, density: 2945, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3423000E4374000_plausibel" },
+{ lat: 53.82218041114384, lng: 10.71358851938837, density: 2818, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3413000E4368000_plausibel" },
+{ lat: 53.87643306842687, lng: 10.653694678171401, density: 2649, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3419000E4364000_plausibel" },
+{ lat: 53.87651322621452, lng: 10.638493226736122, density: 2558, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3419000E4363000_plausibel" },
+{ lat: 53.956087189360936, lng: 10.852943303798064, density: 2517, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3428000E4377000_plausibel" },
+{ lat: 53.840408666453214, lng: 10.668326950851155, density: 2500, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3415000E4365000_plausibel" },
+{ lat: 53.849047476911124, lng: 10.729235337972664, density: 2499, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3416000E4369000_plausibel" },
+{ lat: 53.84922463607888, lng: 10.69885234563372, density: 2438, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3416000E4367000_plausibel" },
+{ lat: 53.88541867611472, lng: 10.65383390588224, density: 2420, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3420000E4364000_plausibel" },
+{ lat: 53.894238229021845, lng: 10.68438889662876, density: 2420, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3421000E4366000_plausibel" },
+{ lat: 53.89432219950908, lng: 10.669181078876155, density: 2404, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3421000E4365000_plausibel" },
+{ lat: 53.85854196973118, lng: 10.638221456485125, density: 2403, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3417000E4363000_plausibel" },
+{ lat: 53.90248392693443, lng: 10.806221061810037, density: 2377, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3422000E4374000_plausibel" },
+{ lat: 53.90258301566265, lng: 10.791010493948017, density: 2368, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3422000E4373000_plausibel" },
+{ lat: 53.86752759833519, lng: 10.638357306521051, density: 2278, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3418000E4363000_plausibel" },
+{ lat: 53.85803298246578, lng: 10.729390510742206, density: 2075, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3417000E4369000_plausibel" },
+{ lat: 53.87618127965951, lng: 10.699298702084914, density: 1913, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3419000E4367000_teils plausibel" },
+{ lat: 53.87626709513825, lng: 10.684097417106326, density: 1817, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3419000E4366000_plausibel" },
+{ lat: 53.96507249647368, lng: 10.853125457545298, density: 1740, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3429000E4377000_plausibel" },
+{ lat: 53.84939425725409, lng: 10.668469121814622, density: 1729, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3416000E4365000_plausibel" },
+{ lat: 53.911945999982464, lng: 10.730323232413761, density: 1720, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3423000E4369000_plausibel" },
+{ lat: 53.84057071012327, lng: 10.637949966739798, density: 1691, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3415000E4363000_plausibel" },
+{ lat: 53.84049063032502, lng: 10.653138485822954, density: 1687, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3415000E4364000_plausibel" },
+{ lat: 53.88461219515858, lng: 10.79067351075277, density: 1684, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3420000E4373000_plausibel" },
+{ lat: 53.81319487989879, lng: 10.713436891945564, density: 1648, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3412000E4368000_plausibel" },
+{ lat: 53.884709349358516, lng: 10.775469355874892, density: 1635, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3420000E4372000_plausibel" },
+{ lat: 53.92045469666307, lng: 10.806564878877554, density: 1630, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3424000E4374000_plausibel" },
+{ lat: 53.92035367152943, lng: 10.821781864951355, density: 1578, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3424000E4375000_plausibel" },
+{ lat: 53.83125353605011, lng: 10.698555158486041, density: 1570, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3414000E4367000_plausibel" },
+{ lat: 53.87562678384492, lng: 10.790505149704478, density: 1569, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3419000E4373000_plausibel" },
+{ lat: 53.955980395887956, lng: 10.868173070881701, density: 1517, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3428000E4378000_plausibel" },
+{ lat: 53.96496567692437, lng: 10.868358476300491, density: 1504, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3429000E4378000_teils plausibel" },
+{ lat: 53.84006197045309, lng: 10.729080245283049, density: 1460, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3415000E4369000_plausibel" },
+{ lat: 53.83142307473734, lng: 10.668184853241847, density: 1440, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3414000E4365000_plausibel" },
+{ lat: 53.7776712703674, lng: 10.637001955538832, density: 1436, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3408000E4363000_plausibel" },
+{ lat: 53.86760585115011, lng: 10.623159037755174, density: 1422, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3418000E4362000_plausibel" },
+{ lat: 53.83997058638274, lng: 10.744268421188266, density: 1327, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3415000E4370000_plausibel" },
+{ lat: 53.84963455508354, lng: 10.622893874067595, density: 1320, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3416000E4362000_plausibel" },
+{ lat: 53.831585079006395, lng: 10.63781432692508, density: 1309, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3414000E4363000_plausibel" },
+{ lat: 53.82235367487978, lng: 10.683224782648109, density: 1291, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3413000E4366000_plausibel" },
+{ lat: 53.947206759904894, lng: 10.837534656168016, density: 1278, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3427000E4376000_plausibel" },
+{ lat: 53.90322379505468, lng: 10.684534749401385, density: 1255, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3422000E4366000_plausibel" },
+{ lat: 53.912123461407475, lng: 10.699894921142343, density: 1255, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3423000E4367000_plausibel" },
+{ lat: 53.8131054450946, lng: 10.728615447092592, density: 1172, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3412000E4369000_plausibel" },
+{ lat: 53.867018487173475, lng: 10.729545763651881, density: 1167, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3418000E4369000_plausibel" },
+{ lat: 53.91156842496586, lng: 10.79117911622601, density: 1147, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3423000E4373000_plausibel" },
+{ lat: 53.83116594132781, lng: 10.71374022506701, density: 1032, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3414000E4368000_plausibel" },
+{ lat: 53.87659149808332, lng: 10.623291722336393, density: 975, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3419000E4362000_plausibel" },
+{ lat: 53.95619209294752, lng: 10.837713465603663, density: 962, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3428000E4376000_plausibel" },
+{ lat: 53.94710188191969, lng: 10.852761244317142, density: 959, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3427000E4377000_teils plausibel" },
+{ lat: 53.885166826022136, lng: 10.699447641327536, density: 925, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3420000E4367000_teils plausibel" },
+{ lat: 53.893883479143646, lng: 10.745219586661289, density: 906, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3421000E4370000_plausibel" },
+{ lat: 53.858696552261975, lng: 10.607831335257679, density: 887, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3417000E4361000_plausibel" },
+{ lat: 53.885577144358464, lng: 10.623424475477929, density: 873, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3420000E4362000_plausibel" },
+{ lat: 53.9027755315711, lng: 10.760589162316947, density: 870, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3422000E4371000_plausibel" },
+{ lat: 53.85862020350234, lng: 10.623026421682736, density: 818, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3417000E4362000_teils plausibel" },
+{ lat: 53.902680217212556, lng: 10.77579986036258, density: 765, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3422000E4372000_plausibel" },
+{ lat: 53.849136998738246, lng: 10.714043871366952, density: 727, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3416000E4368000_plausibel" },
+{ lat: 53.91136831157696, lng: 10.82160666853844, density: 698, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3423000E4375000_plausibel" },
+{ lat: 53.94699511450918, lng: 10.867987761411456, density: 685, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3427000E4378000_plausibel" },
+{ lat: 53.87572391438877, lng: 10.775304231671136, density: 680, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3419000E4372000_plausibel" },
+{ lat: 53.89415237173006, lng: 10.699596657546016, density: 635, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3421000E4367000_plausibel" },
+{ lat: 53.91203567454543, lng: 10.715109106504874, density: 621, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3423000E4368000_teils plausibel" },
+{ lat: 53.82226798457393, lng: 10.698406679885212, density: 619, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3413000E4367000_plausibel" },
+{ lat: 53.89397499677907, lng: 10.730012003824685, density: 607, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3421000E4369000_plausibel" },
+{ lat: 53.822090954601265, lng: 10.728770299903067, density: 599, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3413000E4369000_plausibel" },
+{ lat: 53.85794155392104, lng: 10.744585148946035, density: 592, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3417000E4370000_plausibel" },
+{ lat: 53.89359760574569, lng: 10.790841958812122, density: 580, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3421000E4373000_plausibel" },
+{ lat: 53.84015147050715, lng: 10.71389200904026, density: 566, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3415000E4368000_plausibel" },
+{ lat: 53.76868563141094, lng: 10.636866804402464, density: 550, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3407000E4363000_plausibel" },
+{ lat: 53.87609357830641, lng: 10.714499929056936, density: 513, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3419000E4368000_plausibel" },
+{ lat: 53.88507910330885, lng: 10.714652105386946, density: 496, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3420000E4368000_teils plausibel" },
+{ lat: 53.83188648394796, lng: 10.577072651254339, density: 486, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3414000E4359000_plausibel" },
+{ lat: 53.94688645768771, lng: 10.883214206182975, density: 484, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3427000E4379000_plausibel" },
+{ lat: 53.90286895872548, lng: 10.74537840107438, density: 454, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3422000E4370000_plausibel" },
+{ lat: 53.86768221849474, lng: 10.607960717326065, density: 429, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3418000E4361000_plausibel" },
+{ lat: 53.86692703637381, lng: 10.744743635507579, density: 428, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3418000E4370000_plausibel" },
+{ lat: 53.831739548770784, lng: 10.607443589580736, density: 419, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3414000E4361000_plausibel" },
+{ lat: 53.81328243204795, lng: 10.698258277856334, density: 396, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3412000E4367000_plausibel" },
+{ lat: 53.86782929673246, lng: 10.577563926516806, density: 386, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3418000E4359000_plausibel" },
+{ lat: 53.973950957674774, lng: 10.86854397774019, density: 352, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3430000E4378000_plausibel" },
+{ lat: 53.901389247893206, lng: 10.9583228477636, density: 332, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3422000E4384000_plausibel" },
+{ lat: 53.84072521745649, lng: 10.607572771435168, density: 331, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3415000E4361000_teils plausibel" },
+{ lat: 53.911665650209635, lng: 10.775965240775033, density: 327, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3423000E4372000_plausibel" },
+{ lat: 53.85877101599987, lng: 10.592636198468616, density: 316, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3417000E4360000_teils plausibel" },
+{ lat: 53.83150501867965, lng: 10.652999617089735, density: 315, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3414000E4364000_teils plausibel" },
+{ lat: 53.98314809041186, lng: 10.83825044969407, density: 305, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3431000E4376000_teils plausibel" },
+{ lat: 53.82282827048371, lng: 10.592132257070148, density: 300, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3413000E4360000_plausibel" },
+{ lat: 53.848956070609475, lng: 10.744426744193419, density: 293, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3416000E4370000_plausibel" },
+{ lat: 53.82243748205, lng: 10.66804282893162, density: 290, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3413000E4365000_plausibel" },
+{ lat: 53.80402863919578, lng: 10.743635945415262, density: 285, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3411000E4370000_plausibel" },
+{ lat: 53.78665690803454, lng: 10.637137176329345, density: 266, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3409000E4363000_plausibel" },
+{ lat: 53.80470629944738, lng: 10.622232161053017, density: 261, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3411000E4362000_plausibel" },
+{ lat: 53.813691952568476, lng: 10.622364367152121, density: 260, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3412000E4362000_plausibel" },
+{ lat: 53.87666788402283, lng: 10.608090166232829, density: 260, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3419000E4361000_teils plausibel" },
+{ lat: 53.79531132362091, lng: 10.697961703284635, density: 259, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3410000E4367000_teils plausibel" },
+{ lat: 53.93842546433638, lng: 10.806909051748319, density: 235, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3426000E4374000_plausibel" },
+{ lat: 53.96517742567532, lng: 10.837892367623327, density: 234, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3429000E4376000_plausibel" },
+{ lat: 53.7957206452164, lng: 10.622100023103393, density: 225, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3410000E4362000_plausibel" },
+{ lat: 53.7959436565772, lng: 10.576582388902628, density: 222, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3410000E4359000_plausibel" },
+{ lat: 53.92083991621546, lng: 10.745696276313884, density: 215, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3424000E4370000_plausibel" },
+{ lat: 53.80438252708585, lng: 10.682934504360576, density: 201, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3411000E4366000_plausibel" },
+{ lat: 53.81376820855106, lng: 10.607185425735139, density: 201, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3412000E4361000_plausibel" },
+{ lat: 53.89369478361431, lng: 10.775634565417295, density: 194, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3421000E4372000_plausibel" },
+{ lat: 53.83098510118441, lng: 10.744110179869178, density: 192, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3414000E4370000_plausibel" },
+{ lat: 53.768914121754996, lng: 10.591378291707429, density: 188, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3407000E4360000_plausibel" },
+{ lat: 53.831957126041694, lng: 10.561887109862232, density: 188, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3414000E4358000_plausibel" },
+{ lat: 53.84978533088937, lng: 10.592510115562813, density: 181, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3416000E4360000_teils plausibel" },
+{ lat: 53.81384258180216, lng: 10.592006434151424, density: 176, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3412000E4360000_teils plausibel" },
+{ lat: 53.83181395818778, lng: 10.59225814491243, density: 176, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3414000E4360000_plausibel" },
+{ lat: 53.7956425444688, lng: 10.637272466826264, density: 171, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3410000E4363000_plausibel" },
+{ lat: 53.91037436621372, lng: 10.958527126931976, density: 168, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3423000E4384000_plausibel" },
+{ lat: 53.89485716147798, lng: 10.562724869271959, density: 166, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3421000E4358000_plausibel" },
+{ lat: 53.91185443773061, lng: 10.745537297604633, density: 164, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3423000E4370000_teils plausibel" },
+{ lat: 53.885728067048156, lng: 10.593014838095726, density: 163, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3420000E4360000_plausibel" },
+{ lat: 53.804119934458924, lng: 10.728460674121822, density: 155, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3411000E4369000_plausibel" },
+{ lat: 53.79579686415706, lng: 10.606927528040641, density: 144, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3410000E4361000_plausibel" },
+{ lat: 53.88480461728614, lng: 10.76026513663807, density: 143, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3420000E4371000_plausibel" },
+{ lat: 53.89379007475123, lng: 10.760427107612928, density: 136, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3421000E4371000_plausibel" },
+{ lat: 53.795871201280626, lng: 10.591754982889785, density: 134, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3410000E4360000_plausibel" },
+{ lat: 53.80499995558981, lng: 10.561528995663616, density: 133, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3411000E4358000_plausibel" },
+{ lat: 53.8858006987848, lng: 10.577809944942025, density: 129, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3420000E4359000_unplausibel" },
+{ lat: 53.902382951041155, lng: 10.821431562685456, density: 129, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3422000E4375000_plausibel" },
+{ lat: 53.87681499807321, lng: 10.577686903956808, density: 124, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3419000E4359000_unplausibel" },
+{ lat: 53.78649510045697, lng: 10.667475463581834, density: 121, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3409000E4365000_plausibel" },
+{ lat: 53.93822142649107, lng: 10.837355939246631, density: 121, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3426000E4376000_plausibel" },
+{ lat: 53.929440080728455, lng: 10.806736920804031, density: 119, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3425000E4374000_plausibel" },
+{ lat: 53.804628179726656, lng: 10.637407827081905, density: 117, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3411000E4363000_teils plausibel" },
+{ lat: 53.93811657409362, lng: 10.852579279031506, density: 116, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3426000E4377000_unplausibel" },
+{ lat: 53.92923609264965, lng: 10.837177314769828, density: 111, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3425000E4376000_plausibel" },
+{ lat: 53.87552776750096, lng: 10.805706002169183, density: 107, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3419000E4374000_plausibel" },
+{ lat: 53.79522381399972, lng: 10.713133871532659, density: 103, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3410000E4368000_plausibel" },
+{ lat: 53.875819159119445, lng: 10.760103249329402, density: 103, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3419000E4371000_teils plausibel" },
+{ lat: 53.88565354890273, lng: 10.608219682028249, density: 101, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3420000E4361000_plausibel" },
+{ lat: 53.81361381386457, lng: 10.637543257148632, density: 99, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3412000E4363000_plausibel" },
+{ lat: 53.822519406073376, lng: 10.65286081999033, density: 99, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3413000E4364000_plausibel" },
+{ lat: 53.89406462764521, lng: 10.714804360365465, density: 99, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3421000E4368000_plausibel" },
+{ lat: 53.804296878415755, lng: 10.698109952341946, density: 97, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3411000E4367000_teils plausibel" },
+{ lat: 53.81405440506857, lng: 10.546469170937714, density: 91, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3412000E4357000_plausibel" },
+{ lat: 53.80446629353511, lng: 10.667758999988358, density: 83, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3411000E4365000_plausibel" },
+{ lat: 53.92074644350081, lng: 10.760913523164652, density: 83, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3424000E4371000_teils plausibel" },
+{ lat: 53.78632576760698, lng: 10.697813530627052, density: 82, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3409000E4367000_teils plausibel" },
+{ lat: 53.81391507231185, lng: 10.576827393654744, density: 78, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3412000E4359000_plausibel" },
+{ lat: 53.821906392226495, lng: 10.759133678949187, density: 78, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3413000E4371000_teils plausibel" },
+{ lat: 53.92933903095498, lng: 10.82195715199241, density: 78, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3425000E4375000_teils plausibel" },
+{ lat: 53.8049293649851, lng: 10.57670485969647, density: 77, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3411000E4359000_plausibel" },
+{ lat: 53.803935461758954, lng: 10.758811155307718, density: 77, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3411000E4371000_teils plausibel" },
+{ lat: 53.885871444102925, lng: 10.562605003828846, density: 76, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3420000E4358000_teils plausibel" },
+{ lat: 53.79513442263777, lng: 10.728305980930855, density: 75, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3410000E4369000_teils plausibel" },
+{ lat: 53.90313791683968, lng: 10.699745750798286, density: 68, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3422000E4367000_teils plausibel" },
+{ lat: 53.812920927569145, lng: 10.758972375546085, density: 67, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3412000E4371000_teils plausibel" },
+{ lat: 53.87688572616439, lng: 10.562485200305733, density: 67, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3419000E4358000_teils plausibel" },
+{ lat: 53.974265822151565, lng: 10.822834949011918, density: 67, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3430000E4375000_plausibel" },
+{ lat: 53.89349854115838, lng: 10.806049286535174, density: 64, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3421000E4374000_teils plausibel" },
+{ lat: 53.80485689208664, lng: 10.591880676107529, density: 56, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3411000E4360000_teils plausibel" },
+{ lat: 53.97405780331432, lng: 10.85330770562993, density: 56, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3430000E4377000_unplausibel" },
+{ lat: 53.79601423003713, lng: 10.561409747331004, density: 52, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3410000E4358000_plausibel" },
+{ lat: 53.82275387915446, lng: 10.607314474364069, density: 52, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3413000E4361000_plausibel" },
+{ lat: 53.82259944693899, lng: 10.637678757078866, density: 52, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3413000E4363000_teils plausibel" },
+{ lat: 53.7953969514897, lng: 10.68278947743836, density: 51, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3410000E4366000_plausibel" },
+{ lat: 53.94741084754323, lng: 10.807081271777504, density: 51, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3427000E4374000_teils plausibel" },
+{ lat: 53.83107646303528, lng: 10.72892523261321, density: 49, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3414000E4369000_plausibel" },
+{ lat: 53.929131265826356, lng: 10.852397407870212, density: 49, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3425000E4377000_unplausibel" },
+{ lat: 53.9473097484507, lng: 10.822307998232112, density: 49, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3427000E4375000_plausibel" },
+{ lat: 53.86775670035884, lng: 10.59276234649338, density: 48, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3418000E4360000_plausibel" },
+{ lat: 53.87674238402277, lng: 10.592888559686076, density: 45, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3419000E4360000_plausibel" },
+{ lat: 53.92953924195655, lng: 10.791516622470821, density: 42, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3425000E4373000_plausibel" },
+{ lat: 53.9467759114699, lng: 10.898440577363763, density: 42, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3427000E4380000_teils plausibel" },
+{ lat: 53.95629510663364, lng: 10.822483557567528, density: 40, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3428000E4375000_teils plausibel" },
+{ lat: 53.88498949427371, lng: 10.729856510132759, density: 39, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3420000E4369000_plausibel" },
+{ lat: 53.8498578919375, lng: 10.577318162081431, density: 36, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3416000E4359000_teils plausibel" },
+{ lat: 53.77774933319893, lng: 10.621835951448162, density: 35, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3408000E4362000_teils plausibel" },
+{ lat: 53.813985680070466, lng: 10.561648305498897, density: 35, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3412000E4358000_plausibel" },
+{ lat: 53.858843594706066, lng: 10.577441012574253, density: 33, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3417000E4359000_plausibel" },
+{ lat: 53.89275226207133, lng: 10.912498635768362, density: 32, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3421000E4381000_plausibel" },
+{ lat: 53.911760987802154, lng: 10.760751300813155, density: 32, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3423000E4371000_teils plausibel" },
+{ lat: 53.7869579470317, lng: 10.57645998122583, density: 31, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3409000E4359000_plausibel" },
+{ lat: 53.88451315469935, lng: 10.80587760001047, density: 30, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3420000E4374000_teils plausibel" },
+{ lat: 53.80454817775234, lng: 10.652583440477917, density: 29, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3411000E4364000_teils plausibel" },
+{ lat: 53.77750950206558, lng: 10.667333804942736, density: 27, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3408000E4365000_plausibel" },
+{ lat: 53.804782536904085, lng: 10.607056443643971, density: 26, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3411000E4361000_plausibel" },
+{ lat: 53.91959363038442, lng: 10.92829878262577, density: 25, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3424000E4382000_teils plausibel" },
+{ lat: 53.91094543357507, lng: 10.882460943409797, density: 24, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3423000E4379000_teils plausibel" },
+{ lat: 53.9029604986632, lng: 10.73016757789818, density: 23, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3422000E4369000_teils plausibel" },
+{ lat: 53.955871712542965, lng: 10.883402765585592, density: 23, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3428000E4379000_teils plausibel" },
+{ lat: 53.98304310993921, lng: 10.853490048123133, density: 23, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3431000E4377000_teils plausibel" },
+{ lat: 53.78623827923286, lng: 10.712982478445303, density: 20, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3409000E4368000_plausibel" },
+{ lat: 53.81345188833473, lng: 10.667900877865447, density: 20, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3412000E4365000_teils plausibel" },
+{ lat: 53.82297140353558, lng: 10.561767676883026, density: 20, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3413000E4358000_teils plausibel" },
+{ lat: 53.89478639892377, lng: 10.577933049520277, density: 20, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3421000E4359000_plausibel" },
+{ lat: 53.823040145239105, lng: 10.546585316499419, density: 18, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3413000E4357000_plausibel" },
+{ lat: 53.857848240455546, lng: 10.759779725459083, density: 18, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3417000E4371000_unplausibel" },
+{ lat: 53.866738478648635, lng: 10.775139192741868, density: 16, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3418000E4372000_teils plausibel" },
+{ lat: 53.965280464515146, lng: 10.82265920780461, density: 16, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3429000E4375000_plausibel" },
+{ lat: 53.82290077861397, lng: 10.576949990824872, density: 15, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3413000E4359000_plausibel" },
+{ lat: 53.822677604636176, lng: 10.622496641451882, density: 14, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3413000E4362000_teils plausibel" },
+{ lat: 53.84971088526805, lng: 10.607702019977438, density: 14, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3416000E4361000_unplausibel" },
+{ lat: 53.87600399109064, lng: 10.729701096761955, density: 13, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3419000E4369000_plausibel" },
+{ lat: 53.884412227994105, lng: 10.82108162238679, density: 13, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3420000E4375000_unplausibel" },
+{ lat: 53.786885509327675, lng: 10.591629354449564, density: 12, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3409000E4360000_plausibel" },
+{ lat: 53.8133681015304, lng: 10.683079606078438, density: 9, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3412000E4366000_plausibel" },
+{ lat: 53.77759132665275, lng: 10.652167907120273, density: 8, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3408000E4364000_plausibel" },
+{ lat: 53.821999614958074, lng: 10.743952020174822, density: 8, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3413000E4370000_plausibel" },
+{ lat: 53.90305015137192, lng: 10.71495669405169, density: 8, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3422000E4368000_unplausibel" },
+{ lat: 53.98293623819552, lng: 10.868729575273225, density: 8, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3431000E4378000_plausibel" },
+{ lat: 53.7779722362921, lng: 10.576337636618742, density: 7, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3408000E4359000_plausibel" },
+{ lat: 53.7868111902535, lng: 10.606798678875274, density: 6, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3409000E4361000_teils plausibel" },
+{ lat: 53.92055383371169, lng: 10.791347825711716, density: 6, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3424000E4373000_unplausibel" },
+{ lat: 53.76876367529952, lng: 10.621704017640468, density: 5, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3407000E4362000_plausibel" },
+{ lat: 53.79556256192467, lng: 10.652444857957517, density: 5, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3410000E4364000_unplausibel" },
+{ lat: 53.813014127647335, lng: 10.74379394204392, density: 5, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3412000E4370000_plausibel" },
+{ lat: 53.901507207631994, lng: 10.943113006603594, density: 5, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3422000E4383000_plausibel" },
+{ lat: 53.919707871719275, lng: 10.913082301617331, density: 5, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3424000E4381000_teils plausibel" },
+{ lat: 53.78673498981908, lng: 10.621967953252131, density: 4, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3409000E4362000_teils plausibel" },
+{ lat: 53.920651082661955, lng: 10.776130706719012, density: 4, comment: "Lübeck_Stadt_Lübeck_CRS3035RES1kmN3424000E4372000_unplausibel" }]
+         ;
+
+         function getColor(density) {
+            return density > 15000 ? '#b30000' :
+                   density > 10000 ? '#b30000' :
+                   density > 8000 ? '#d7301f' :
+                   density > 6000  ? '#ef6548' :
+                   density > 4000  ? '#fc8d59' :
+                   density > 3000  ? '#fdbb84' :
+                   density > 2000  ? '#fdd49e' :
+                   density > 1000  ? '#fee8c8' :
+                   density > 500   ? '#fff7ec' :
+                                     '#FFFFCC';
+        }
+
+        ['#fff7ec','#fee8c8','#fdd49e','#fdbb84','#fc8d59','#ef6548','#d7301f','#b30000','#7f0000']
+
+        // function addGridSquare(lat, lng, density, comment) {
+        //     const sizeLat = 0.009; // ~1 km in Breitengrad
+        //     const sizeLng = 0.009 / Math.cos(lat * Math.PI / 180); // Korrektur für Längengrad
+            
+        //     const bounds = [
+        //         [lat - sizeLat / 2, lng - sizeLng / 2],
+        //         [lat + sizeLat / 2, lng + sizeLng / 2]
+        //     ];
+            
+        //     const rectangle = L.rectangle(bounds, { 
+        //         color: "#000", 
+        //         weight: 1, 
+        //         fillColor: getColor(density), 
+        //         fillOpacity: 0.6 
+        //     }).addTo(map);
+            
+        //     rectangle.bindTooltip(`Bevölkerungsdichte: ${density} / km²<br>${comment}`, { permanent: false, direction: "top" });
+        // }
+
+        function addGridSquare(lat, lng, density, comment) {
+            // Methode 1
+            // const sizeLat = 0.009; // ~1 km in Breitengrad
+            // const sizeLng = 0.009 / Math.cos(lat * Math.PI / 180); // Korrektur für Längengrad
+            
+            // const bounds = [
+            //     [lat, lng],
+            //     [lat + sizeLat, lng + sizeLng]
+            // ];
+
+            // Methode 2
+            const distance = 1000; // 1 km
+            
+            // Umrechnung von Metern in Breitengrad-/Längengrad-Änderung
+            const earthRadius = 6378137; // Erdradius in Metern
+            const dLat = (distance / earthRadius) * (180 / Math.PI);
+            const dLng = (distance / earthRadius) * (180 / Math.PI) / Math.cos(lat * Math.PI / 180);
+            
+            const bounds = [
+                [lat, lng],
+                [lat + dLat, lng + dLng]
+            ];
+
+            // Methode 3 mit proj4 lib
+            // const distance = 1000; // 1 km
+            
+            // // Verwenden der proj4-Bibliothek für genauere Berechnungen
+            // proj4.defs("EPSG:3857", "+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs");
+            // const wgs84 = "EPSG:4326";
+            // const mercator = "EPSG:3857";
+
+            // const lowerLeft = proj4(wgs84, mercator, [lng, lat]);
+            // const upperRight = [lowerLeft[0] + distance, lowerLeft[1] + distance];
+            // const upperRightWGS84 = proj4(mercator, wgs84, upperRight);
+            
+            // const bounds = [
+            //     [lat, lng],
+            //     [upperRightWGS84[1], upperRightWGS84[0]]
+            // ];
+            
+            
+            const rectangle = L.rectangle(bounds, { 
+                color: "#000", 
+                weight: 1, 
+                fillColor: getColor(density), 
+                fillOpacity: 0.7
+            }).addTo(map);
+            
+            rectangle.bindTooltip(`Bevölkerungsdichte: ${density} / km²<br>${comment}`, { permanent: false, direction: "top" });
+        }
+
+        input_data.forEach(({ lat, lng, density, comment }) => addGridSquare(lat, lng, density, comment));
+    </script>
+</body>
+</html>

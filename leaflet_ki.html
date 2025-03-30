@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaflet Population Grid</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.6.2/proj4.js"></script>
+    <style>
+        #map { height: 600px; width: 100%; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        //const map = L.map('map').setView([51.1657, 10.4515], 6); // Deutschland als Startpunkt
+        const map = L.map('map').setView([54.3274, 10.12293], 10); // Stadt als Startpunkt
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        const input_data = 
+        [{ lat: 54.327417914428075, lng: 10.122932478232237, density: 13601, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3469000E4329000_plausibel" },
+{ lat: 54.30942956568219, lng: 10.138239230217717, density: 11862, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3467000E4330000_plausibel" },
+{ lat: 54.31843184989517, lng: 10.122905904895047, density: 10918, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3468000E4329000_plausibel" },
+{ lat: 54.33640398133378, lng: 10.12295906546544, density: 10379, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3470000E4329000_plausibel" },
+{ lat: 54.318484345830164, lng: 10.046089750390419, density: 10199, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3468000E4324000_plausibel" },
+{ lat: 54.30044350972929, lng: 10.138209366470225, density: 8459, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3466000E4330000_plausibel" },
+{ lat: 54.3094601012097, lng: 10.10751945018857, density: 7934, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3467000E4328000_plausibel" },
+{ lat: 54.318446166961785, lng: 10.107542689727085, density: 7542, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3468000E4328000_plausibel" },
+{ lat: 54.345390050669, lng: 10.122985666605253, density: 6339, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3471000E4329000_plausibel" },
+{ lat: 54.30949827065061, lng: 10.046079790567369, density: 6029, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3467000E4324000_plausibel" },
+{ lat: 54.32743223503188, lng: 10.107565941415368, density: 6011, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3469000E4328000_plausibel" },
+{ lat: 54.30944578767838, lng: 10.122879345443286, density: 5275, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3467000E4329000_plausibel" },
+{ lat: 54.31837744508703, lng: 10.16899548222303, density: 5142, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3468000E4332000_plausibel" },
+{ lat: 54.30045972772099, lng: 10.122852799866378, density: 4995, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3466000E4329000_plausibel" },
+{ lat: 54.3004740377189, lng: 10.10749622279057, density: 4967, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3466000E4328000_plausibel" },
+{ lat: 54.35439045371729, lng: 10.107635769471502, density: 4615, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3472000E4328000_plausibel" },
+{ lat: 54.30941143522334, lng: 10.153599103201854, density: 4562, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3467000E4331000_plausibel" },
+{ lat: 54.33632758598839, lng: 10.184438388092065, density: 4259, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3470000E4333000_plausibel" },
+{ lat: 54.309391396304335, lng: 10.168958963085684, density: 4056, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3467000E4332000_plausibel" },
+{ lat: 54.35437612249048, lng: 10.123012281662284, density: 3784, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3472000E4329000_plausibel" },
+{ lat: 54.30048643972108, lng: 10.092139636551781, density: 3674, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3466000E4327000_plausibel" },
+{ lat: 54.34541679568297, lng: 10.092239286751884, density: 3631, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3471000E4327000_plausibel" },
+{ lat: 54.39028600679125, lng: 10.153898522426958, density: 3626, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3476000E4331000_plausibel" },
+{ lat: 54.32746374037761, lng: 10.061466281104115, density: 3295, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3469000E4325000_plausibel" },
+{ lat: 54.31847766452567, lng: 10.061452994402162, density: 3203, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3468000E4325000_plausibel" },
+{ lat: 54.291397368895105, lng: 10.184239192957655, density: 3164, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3465000E4333000_plausibel" },
+{ lat: 54.354413383690485, lng: 10.076882718784825, density: 3128, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3472000E4326000_plausibel" },
+{ lat: 54.3004053497738, lng: 10.16892246302615, density: 3123, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3466000E4332000_plausibel" },
+{ lat: 54.336387747311136, lng: 10.138328915162894, density: 3038, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3470000E4330000_teils plausibel" },
+{ lat: 54.291419305438744, lng: 10.168885982029902, density: 2781, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3465000E4332000_plausibel" },
+{ lat: 54.32734153795781, lng: 10.184398507409224, density: 2764, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3469000E4333000_plausibel" },
+{ lat: 54.28241133211085, lng: 10.184199416335446, density: 2726, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3464000E4333000_plausibel" },
+{ lat: 54.381334353439485, lng: 10.123092210442914, density: 2558, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3475000E4329000_plausibel" },
+{ lat: 54.30050551973165, lng: 10.061426441821213, density: 2510, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3466000E4325000_plausibel" },
+{ lat: 54.309345593097156, lng: 10.199678638312447, density: 2440, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3467000E4334000_plausibel" },
+{ lat: 54.32744464622583, lng: 10.092199395413653, density: 2394, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3469000E4327000_plausibel" },
+{ lat: 54.300425383746074, lng: 10.153565921293136, density: 2354, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3466000E4331000_plausibel" },
+{ lat: 54.327401684416394, lng: 10.13829900455215, density: 2321, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3469000E4330000_plausibel" },
+{ lat: 54.32745514800823, lng: 10.076832841539195, density: 2281, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3469000E4326000_plausibel" },
+{ lat: 54.318331630567, lng: 10.199721797184646, density: 2270, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3468000E4334000_plausibel" },
+{ lat: 54.363362196854915, lng: 10.123038910647152, density: 2262, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3473000E4329000_plausibel" },
+{ lat: 54.35442198243369, lng: 10.061506182919421, density: 2134, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3472000E4325000_plausibel" },
+{ lat: 54.3274704233328, lng: 10.046099715420532, density: 2039, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3469000E4324000_plausibel" },
+{ lat: 54.33643071973785, lng: 10.092219335867773, density: 2031, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3470000E4327000_plausibel" },
+{ lat: 54.31835549228989, lng: 10.184358647570232, density: 2019, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3468000E4333000_plausibel" },
+{ lat: 54.39026592323174, lng: 10.16928832387097, density: 1882, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3476000E4332000_plausibel" },
+{ lat: 54.3004969337258, lng: 10.076783042458997, density: 1815, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3466000E4326000_plausibel" },
+{ lat: 54.27342529740576, lng: 10.184159660477858, density: 1744, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3463000E4333000_plausibel" },
+{ lat: 54.30947250627415, lng: 10.09215954576359, density: 1740, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3467000E4327000_plausibel" },
+{ lat: 54.32731767033965, lng: 10.19976497862042, density: 1682, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3469000E4334000_plausibel" },
+{ lat: 54.34540437835291, lng: 10.107612481278302, density: 1681, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3471000E4328000_teils plausibel" },
+{ lat: 54.32736349617864, lng: 10.169032020452729, density: 1602, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3469000E4332000_plausibel" },
+{ lat: 54.39930652087648, lng: 10.12314556607771, density: 1575, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3477000E4329000_plausibel" },
+{ lat: 54.33641830547668, lng: 10.107589205262684, density: 1560, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3470000E4328000_teils plausibel" },
+{ lat: 54.3364412241156, lng: 10.076849458593863, density: 1515, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3470000E4326000_plausibel" },
+{ lat: 54.30949159099592, lng: 10.061439714642956, density: 1505, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3467000E4325000_plausibel" },
+{ lat: 54.31839748895544, lng: 10.15363230245407, density: 1502, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3468000E4331000_plausibel" },
+{ lat: 54.29148797643269, lng: 10.107473007523843, density: 1458, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3465000E4328000_plausibel" },
+{ lat: 54.28245328732923, lng: 10.153499609453412, density: 1450, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3464000E4331000_plausibel" },
+{ lat: 54.34542730265744, lng: 10.076866084340196, density: 1433, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3471000E4326000_plausibel" },
+{ lat: 54.31845857509016, lng: 10.092179465381571, density: 1377, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3468000E4327000_plausibel" },
+{ lat: 54.39927208336878, lng: 10.15393187836715, density: 1366, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3477000E4331000_plausibel" },
+{ lat: 54.28247140436844, lng: 10.138149685755266, density: 1316, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3464000E4330000_plausibel" },
+{ lat: 54.39032043577306, lng: 10.123118881275104, density: 1289, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3476000E4329000_plausibel" },
+{ lat: 54.33644981860845, lng: 10.061479574754111, density: 1259, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3470000E4325000_plausibel" },
+{ lat: 54.27348535484703, lng: 10.138119868764068, density: 1247, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3463000E4330000_teils plausibel" },
+{ lat: 54.32729189332743, lng: 10.215131432774255, density: 1211, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3469000E4335000_plausibel" },
+{ lat: 54.40829260880645, lng: 10.123172264861404, density: 1192, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3478000E4329000_plausibel" },
+{ lat: 54.30936944892793, lng: 10.184318808559212, density: 1178, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3467000E4333000_teils plausibel" },
+{ lat: 54.40823806925925, lng: 10.169361726082348, density: 1163, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3478000E4332000_teils plausibel" },
+{ lat: 54.29150037537424, lng: 10.09211973773822, density: 1157, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3465000E4327000_plausibel" },
+{ lat: 54.372348273819, lng: 10.12306555357048, density: 1130, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3474000E4329000_plausibel" },
+{ lat: 54.336303712471775, lng: 10.199808182636973, density: 1102, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3470000E4334000_plausibel" },
+{ lat: 54.35440287411785, lng: 10.092259248073935, density: 1042, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3472000E4327000_plausibel" },
+{ lat: 54.38129993297897, lng: 10.153865183949721, density: 1022, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3475000E4331000_plausibel" },
+{ lat: 54.39925199483586, lng: 10.169325015364718, density: 1012, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3477000E4332000_teils plausibel" },
+{ lat: 54.28252480200349, lng: 10.076749886409296, density: 1003, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3464000E4326000_plausibel" },
+{ lat: 54.29145745597694, lng: 10.138179518320031, density: 975, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3465000E4330000_teils plausibel" },
+{ lat: 54.31841562389232, lng: 10.138269109574393, density: 940, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3468000E4330000_plausibel" },
+{ lat: 54.36337653162653, lng: 10.107659069851579, density: 936, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3473000E4328000_teils plausibel" },
+{ lat: 54.28248761435755, lng: 10.122799750294881, density: 914, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3464000E4329000_plausibel" },
+{ lat: 54.27351586024722, lng: 10.10742661334728, density: 908, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3463000E4328000_plausibel" },
+{ lat: 54.36334595078638, lng: 10.138418740912323, density: 903, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3473000E4330000_teils plausibel" },
+{ lat: 54.291510866789196, lng: 10.076766460104837, density: 901, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3465000E4326000_plausibel" },
+{ lat: 54.27346724227627, lng: 10.153466479496036, density: 884, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3463000E4331000_teils plausibel" },
+{ lat: 54.282387493937435, lng: 10.199549296905579, density: 874, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3464000E4334000_plausibel" },
+{ lat: 54.282433263242446, lng: 10.168849520082434, density: 844, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3464000E4332000_plausibel" },
+{ lat: 54.30948300287003, lng: 10.076799633478375, density: 838, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3467000E4326000_plausibel" },
+{ lat: 54.30051219773741, lng: 10.046069835947419, density: 822, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3466000E4324000_plausibel" },
+{ lat: 54.29143933446694, lng: 10.153532756714721, density: 803, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3465000E4331000_plausibel" },
+{ lat: 54.29147366996628, lng: 10.12282626815376, density: 791, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3465000E4329000_plausibel" },
+{ lat: 54.273501560838085, lng: 10.122773246279197, density: 763, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3463000E4329000_plausibel" },
+{ lat: 54.318469074278596, lng: 10.076816233169572, density: 750, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3468000E4326000_plausibel" },
+{ lat: 54.309503041833196, lng: 10.030719862561654, density: 734, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3467000E4323000_plausibel" },
+{ lat: 54.29137352483906, lng: 10.199592388190071, density: 730, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3465000E4334000_plausibel" },
+{ lat: 54.29152612703386, lng: 10.046059886526608, density: 707, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3465000E4324000_teils plausibel" },
+{ lat: 54.26446118503942, lng: 10.168776653275863, density: 675, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3462000E4332000_plausibel" },
+{ lat: 54.345373812633234, lng: 10.138358841418547, density: 596, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3471000E4330000_plausibel" },
+{ lat: 54.30038340781524, lng: 10.184278990360301, density: 589, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3466000E4333000_plausibel" },
+{ lat: 54.417244245046454, lng: 10.15399864268978, density: 574, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3479000E4331000_plausibel" },
+{ lat: 54.291519450676134, lng: 10.061413175931648, density: 551, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3465000E4325000_plausibel" },
+{ lat: 54.345435899274904, lng: 10.061492875357446, density: 468, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3471000E4325000_plausibel" },
+{ lat: 54.354359880439404, lng: 10.138388783331042, density: 457, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3472000E4330000_plausibel" },
+{ lat: 54.37236261213735, lng: 10.107682382427829, density: 447, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3474000E4328000_teils plausibel" },
+{ lat: 54.37233202373086, lng: 10.13844871417435, density: 439, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3474000E4330000_plausibel" },
+{ lat: 54.27353873931201, lng: 10.076733321365786, density: 432, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3463000E4326000_plausibel" },
+{ lat: 54.41722414655864, lng: 10.169398456038552, density: 393, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3479000E4332000_teils plausibel" },
+{ lat: 54.31848911819118, lng: 10.03072650244542, density: 382, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3468000E4323000_plausibel" },
+{ lat: 54.27352825307242, lng: 10.092079971274188, density: 370, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3463000E4327000_plausibel" },
+{ lat: 54.25551326183886, lng: 10.138060281454997, density: 357, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3461000E4330000_plausibel" },
+{ lat: 54.282533383772666, lng: 10.061399916968986, density: 305, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3464000E4325000_plausibel" },
+{ lat: 54.28251431317692, lng: 10.09209984931499, density: 283, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3464000E4327000_plausibel" },
+{ lat: 54.318305859921665, lng: 10.21508492975525, density: 267, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3468000E4335000_plausibel" },
+{ lat: 54.36340806814154, lng: 10.061519497445351, density: 267, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3473000E4325000_plausibel" },
+{ lat: 54.3992902587165, lng: 10.138538728164658, density: 257, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3477000E4330000_teils plausibel" },
+{ lat: 54.417262429400985, lng: 10.138598816115028, density: 232, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3479000E4330000_unplausibel" },
+{ lat: 54.37231386187518, lng: 10.153831862922113, density: 227, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3474000E4331000_teils plausibel" },
+{ lat: 54.38131809932956, lng: 10.138478703129092, density: 224, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3475000E4330000_teils plausibel" },
+{ lat: 54.36339946727142, lng: 10.076899361934386, density: 200, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3473000E4326000_plausibel" },
+{ lat: 54.345335605515274, lng: 10.169105154247418, density: 192, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3471000E4332000_teils plausibel" },
+{ lat: 54.282540058483235, lng: 10.046049942300979, density: 186, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3464000E4324000_plausibel" },
+{ lat: 54.28250191729436, lng: 10.107449804379154, density: 151, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3464000E4328000_plausibel" },
+{ lat: 54.26449930735609, lng: 10.13809006733459, density: 147, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3462000E4330000_plausibel" },
+{ lat: 54.3903041776392, lng: 10.138508707788528, density: 147, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3476000E4330000_plausibel" },
+{ lat: 54.2734014651118, lng: 10.199506228116038, density: 140, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3463000E4334000_teils plausibel" },
+{ lat: 54.38127985439017, lng: 10.169251651586436, density: 135, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3475000E4332000_plausibel" },
+{ lat: 54.42623033026003, lng: 10.154032051098941, density: 135, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3480000E4331000_teils plausibel" },
+{ lat: 54.408258162768284, lng: 10.153965251783639, density: 127, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3478000E4331000_teils plausibel" },
+{ lat: 54.25549515819772, lng: 10.153400271440429, density: 116, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3461000E4331000_plausibel" },
+{ lat: 54.30051696774219, lng: 10.03071322614662, density: 109, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3466000E4323000_teils plausibel" },
+{ lat: 54.3363495496358, lng: 10.169068577789336, density: 105, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3470000E4332000_teils plausibel" },
+{ lat: 54.36338895509928, lng: 10.092279219841894, density: 99, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3473000E4327000_plausibel" },
+{ lat: 54.26452980523453, lng: 10.107403434419009, density: 88, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3462000E4328000_teils plausibel" },
+{ lat: 54.39024392696342, lng: 10.184678110801162, density: 83, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3476000E4333000_teils plausibel" },
+{ lat: 54.25547514891928, lng: 10.168740248387817, density: 80, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3461000E4332000_plausibel" },
+{ lat: 54.33636960341098, lng: 10.153698753041905, density: 71, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3470000E4331000_teils plausibel" },
+{ lat: 54.264481199251314, lng: 10.153433366829425, density: 68, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3462000E4331000_unplausibel" },
+{ lat: 54.40827634261819, lng: 10.138568764269484, density: 61, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3478000E4330000_teils plausibel" },
+{ lat: 54.27344722312826, lng: 10.168813077169247, density: 58, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3463000E4332000_plausibel" },
+{ lat: 54.264542195004026, lng: 10.092060103607913, density: 53, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3462000E4327000_teils plausibel" },
+{ lat: 54.39922999312048, lng: 10.184718137836898, density: 52, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3477000E4333000_teils plausibel" },
+{ lat: 54.24652721823867, lng: 10.138030511113469, density: 50, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3460000E4330000_plausibel" },
+{ lat: 54.34544258553416, lng: 10.046119661117839, density: 50, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3471000E4324000_teils plausibel" },
+{ lat: 54.24650911905876, lng: 10.153367193315916, density: 46, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3460000E4331000_teils plausibel" },
+{ lat: 54.26443926472316, lng: 10.184119925369098, density: 40, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3462000E4333000_plausibel" },
+{ lat: 54.32738354499909, lng: 10.15366551906301, density: 33, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3469000E4331000_unplausibel" },
+{ lat: 54.25555613891506, lng: 10.092040246308276, density: 32, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3461000E4327000_teils plausibel" },
+{ lat: 54.354433447427404, lng: 10.030753096720757, density: 25, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3472000E4323000_teils plausibel" },
+{ lat: 54.24648911471115, lng: 10.168703862490657, density: 22, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3460000E4332000_plausibel" },
+{ lat: 54.255529459840226, lng: 10.122720279735303, density: 20, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3461000E4329000_teils plausibel" },
+{ lat: 54.24654341224842, lng: 10.122693817186063, density: 12, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3460000E4329000_plausibel" },
+{ lat: 54.255453234006325, lng: 10.184080210993384, density: 11, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3461000E4333000_teils plausibel" },
+{ lat: 54.264515509351234, lng: 10.122746756096179, density: 8, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3462000E4329000_plausibel" },
+{ lat: 54.24646720519859, lng: 10.184040517334953, density: 6, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3460000E4333000_teils plausibel" },
+{ lat: 54.264415438305505, lng: 10.199463181804333, density: 4, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3462000E4334000_unplausibel" },
+{ lat: 54.40821606209387, lng: 10.184758185844098, density: 4, comment: "Kiel_Stadt_Kiel_CRS3035RES1kmN3478000E4333000_plausibel" }]
+         ;
+
+         function getColor(density) {
+            return density > 15000 ? '#b30000' :
+                   density > 10000 ? '#b30000' :
+                   density > 8000 ? '#d7301f' :
+                   density > 6000  ? '#ef6548' :
+                   density > 4000  ? '#fc8d59' :
+                   density > 3000  ? '#fdbb84' :
+                   density > 2000  ? '#fdd49e' :
+                   density > 1000  ? '#fee8c8' :
+                   density > 500   ? '#fff7ec' :
+                                     '#FFFFCC';
+        }
+
+        ['#fff7ec','#fee8c8','#fdd49e','#fdbb84','#fc8d59','#ef6548','#d7301f','#b30000','#7f0000']
+
+        // function addGridSquare(lat, lng, density, comment) {
+        //     const sizeLat = 0.009; // ~1 km in Breitengrad
+        //     const sizeLng = 0.009 / Math.cos(lat * Math.PI / 180); // Korrektur für Längengrad
+            
+        //     const bounds = [
+        //         [lat - sizeLat / 2, lng - sizeLng / 2],
+        //         [lat + sizeLat / 2, lng + sizeLng / 2]
+        //     ];
+            
+        //     const rectangle = L.rectangle(bounds, { 
+        //         color: "#000", 
+        //         weight: 1, 
+        //         fillColor: getColor(density), 
+        //         fillOpacity: 0.6 
+        //     }).addTo(map);
+            
+        //     rectangle.bindTooltip(`Bevölkerungsdichte: ${density} / km²<br>${comment}`, { permanent: false, direction: "top" });
+        // }
+
+        function addGridSquare(lat, lng, density, comment) {
+            // Methode 1
+            // const sizeLat = 0.009; // ~1 km in Breitengrad
+            // const sizeLng = 0.009 / Math.cos(lat * Math.PI / 180); // Korrektur für Längengrad
+            
+            // const bounds = [
+            //     [lat, lng],
+            //     [lat + sizeLat, lng + sizeLng]
+            // ];
+
+            // Methode 2
+            const distance = 1000; // 1 km
+            
+            // Umrechnung von Metern in Breitengrad-/Längengrad-Änderung
+            const earthRadius = 6378137; // Erdradius in Metern
+            const dLat = (distance / earthRadius) * (180 / Math.PI);
+            const dLng = (distance / earthRadius) * (180 / Math.PI) / Math.cos(lat * Math.PI / 180);
+            
+            const bounds = [
+                [lat, lng],
+                [lat + dLat, lng + dLng]
+            ];
+
+            // Methode 3 mit proj4 lib
+            // const distance = 1000; // 1 km
+            
+            // // Verwenden der proj4-Bibliothek für genauere Berechnungen
+            // proj4.defs("EPSG:3857", "+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs");
+            // const wgs84 = "EPSG:4326";
+            // const mercator = "EPSG:3857";
+
+            // const lowerLeft = proj4(wgs84, mercator, [lng, lat]);
+            // const upperRight = [lowerLeft[0] + distance, lowerLeft[1] + distance];
+            // const upperRightWGS84 = proj4(mercator, wgs84, upperRight);
+            
+            // const bounds = [
+            //     [lat, lng],
+            //     [upperRightWGS84[1], upperRightWGS84[0]]
+            // ];
+            
+            
+            const rectangle = L.rectangle(bounds, { 
+                color: "#000", 
+                weight: 1, 
+                fillColor: getColor(density), 
+                fillOpacity: 0.7
+            }).addTo(map);
+            
+            rectangle.bindTooltip(`Bevölkerungsdichte: ${density} / km²<br>${comment}`, { permanent: false, direction: "top" });
+        }
+
+        input_data.forEach(({ lat, lng, density, comment }) => addGridSquare(lat, lng, density, comment));
+    </script>
+</body>
+</html>
